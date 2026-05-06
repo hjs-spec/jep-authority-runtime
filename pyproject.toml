@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jep-authority-runtime"
+version = "0.1.0"
+description = "Reference runtime for JEP-compatible authority scope semantics."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "JEP Authority Runtime contributors"}]
+keywords = ["jep", "authority", "delegation", "attenuation", "replay"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+[project.scripts]
+jep-authority = "jep_authority.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["jep_authority*"]
