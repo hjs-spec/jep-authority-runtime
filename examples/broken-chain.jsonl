@@ -1,0 +1,1 @@
+{"event":"delegate_scope","scope_id":"orphan","parent_scope":"missing-parent","actor":"agent:a","subject":"agent:b","allowed_actions":["search"],"resource_scope":"web/search"}

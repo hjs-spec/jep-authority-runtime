@@ -1,0 +1,6 @@
+{"event":"create_scope","scope_id":"human-search","actor":"human:alice","subject":"agent:searcher","allowed_actions":["search"],"denied_actions":["payment"],"resource_scope":"web/search","expires_at":"2030-01-01T00:00:00Z"}
+{"event":"delegate_scope","scope_id":"agent-search-news","parent_scope":"human-search","actor":"agent:searcher","subject":"agent:sub-searcher","allowed_actions":["search"],"denied_actions":["payment"],"resource_scope":"web/search/news","expires_at":"2029-01-01T00:00:00Z"}
+{"event":"action","scope_id":"agent-search-news","action":"search","resource":"web/search/news/politics","at":"2028-01-01T00:00:00Z"}
+{"event":"action","scope_id":"agent-search-news","action":"payment","resource":"payments/card","at":"2028-01-01T00:00:00Z"}
+{"event":"revoke_scope","scope_id":"human-search","revoked_at":"2028-06-01T00:00:00Z"}
+{"event":"action","scope_id":"agent-search-news","action":"search","resource":"web/search/news/politics","at":"2028-06-02T00:00:00Z"}
