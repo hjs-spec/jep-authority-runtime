@@ -166,6 +166,8 @@ class DelegationRuntime:
             parent_scope=None,
             attenuation_rules=dict(attenuation_rules or {}),
         )
+        if scope.scope_id in self.scopes:
+            raise AuthorityError("scope_id already exists")
         self.scopes[scope.scope_id] = scope
         return scope
 
@@ -181,6 +183,7 @@ class DelegationRuntime:
         expires_at: str | datetime | None = None,
         attenuation_rules: Mapping[str, Any] | None = None,
         scope_id: str | None = None,
+        at: str | datetime | None = None,
     ) -> AuthorityScope:
         parent = self._require_scope(parent_scope)
         allowed = set(allowed_actions) if allowed_actions is not None else set(parent.allowed_actions)
@@ -198,9 +201,11 @@ class DelegationRuntime:
             parent_scope=parent.scope_id,
             attenuation_rules={**parent.attenuation_rules, **dict(attenuation_rules or {})},
         )
-        result = self.verify_delegation_path(child)
+        result = self.verify_delegation_path(child, at=at)
         if not result.ok:
             raise AuthorityError(result.reason)
+        if child.scope_id in self.scopes:
+            raise AuthorityError("scope_id already exists")
         self.scopes[child.scope_id] = child
         return child
 
@@ -220,7 +225,8 @@ class DelegationRuntime:
 
     def revoke_scope(self, scope_id: str, revoked_at: str | datetime | None = None) -> AuthorityScope:
         scope = self._require_scope(scope_id)
-        scope.revoked_at = parse_time(revoked_at) or _utc_now()
+        revoked = parse_time(revoked_at) or _utc_now()
+        scope.revoked_at = min(scope.revoked_at, revoked) if scope.revoked_at else revoked
         return scope
 
     def verify_scope(
@@ -261,6 +267,8 @@ class DelegationRuntime:
             parent = self.scopes.get(child.parent_scope)
             if parent is None:
                 return VerificationResult(False, "delegation chain broken")
+            if child.actor != parent.subject:
+                return VerificationResult(False, "delegating actor is not parent subject")
             if parent.revoked_at is not None and checked_at >= parent.revoked_at:
                 return VerificationResult(False, "parent scope revoked")
             if parent.expires_at is not None and checked_at > parent.expires_at:
@@ -353,6 +361,10 @@ def replay_archive(path: str | Path, *, verify_only: bool = False) -> ReplayRepo
 def _apply_event(runtime: DelegationRuntime, item: ReplayEvent, *, verify_only: bool) -> None:
     payload = item.payload
     event = item.event
+    if event in {"delegate_scope", "attenuate_scope", "action", "verify_scope", "verify_delegation_path"} and not payload.get("at"):
+        raise AuthorityError("archive event requires recorded at timestamp")
+    if event == "revoke_scope" and not (payload.get("revoked_at") or payload.get("at")):
+        raise AuthorityError("archive revocation requires recorded timestamp")
     if event == "create_scope":
         runtime.create_scope(
             scope_id=payload.get("scope_id"),
@@ -368,6 +380,7 @@ def _apply_event(runtime: DelegationRuntime, item: ReplayEvent, *, verify_only: 
     if event in {"delegate_scope", "attenuate_scope"}:
         runtime.delegate_scope(
             scope_id=payload.get("scope_id"),
+            at=payload["at"],
             parent_scope=payload["parent_scope"],
             actor=payload["actor"],
             subject=payload["subject"],
@@ -390,7 +403,7 @@ def _apply_event(runtime: DelegationRuntime, item: ReplayEvent, *, verify_only: 
         )
         expected = payload.get("expect")
         if expected in {"deny", "denied", False}:
-            if result.ok and not verify_only:
+            if result.ok:
                 raise AuthorityError("expected denial but action was allowed")
             return
         if not result.ok:

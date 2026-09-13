@@ -79,7 +79,7 @@ class AuthorityRuntimeTests(unittest.TestCase):
         self.assertEqual(report.violations[0].reason, "scope revoked")
 
     def test_replay_reports_broken_chain(self):
-        archive = '{"event":"delegate_scope","scope_id":"orphan","parent_scope":"missing","actor":"a","subject":"b","allowed_actions":["search"],"resource_scope":"web/search"}\n'
+        archive = '{"event":"delegate_scope","at":"2025-01-01T00:00:00Z","scope_id":"orphan","parent_scope":"missing","actor":"a","subject":"b","allowed_actions":["search"],"resource_scope":"web/search"}\n'
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "archive.jsonl"
             path.write_text(archive, encoding="utf-8")
