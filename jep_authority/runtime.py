@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
+import re
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 from uuid import uuid4
@@ -58,6 +59,8 @@ def _resource_within(child: str, parent: str) -> bool:
     "*" grants every resource; otherwise a child resource is in scope when it is
     equal to the parent resource or is a slash-delimited descendant of it.
     """
+    if any(not isinstance(value, str) or not value or "\\" in value or any(part in {".", ".."} for part in value.split("/")) or re.search(r"%(?:2e|2f|5c|25)", value, re.I) for value in (child, parent)):
+        return False
     if parent == "*":
         return True
     if child == parent:
@@ -120,7 +123,7 @@ class AuthorityScope:
         checked_at = at or _utc_now()
         if self.revoked_at is not None and checked_at >= self.revoked_at:
             return False, "scope revoked"
-        if self.expires_at is not None and checked_at > self.expires_at:
+        if self.expires_at is not None and checked_at >= self.expires_at:
             return False, "scope expired"
         if action in self.denied_actions:
             return False, "action denied"
@@ -256,7 +259,7 @@ class DelegationRuntime:
         checked_at = parse_time(at) or _utc_now()
         if scope.revoked_at is not None and checked_at >= scope.revoked_at:
             return VerificationResult(False, "scope revoked")
-        if scope.expires_at is not None and checked_at > scope.expires_at:
+        if scope.expires_at is not None and checked_at >= scope.expires_at:
             return VerificationResult(False, "scope expired")
         seen: set[str] = set()
         child = scope
@@ -271,7 +274,7 @@ class DelegationRuntime:
                 return VerificationResult(False, "delegating actor is not parent subject")
             if parent.revoked_at is not None and checked_at >= parent.revoked_at:
                 return VerificationResult(False, "parent scope revoked")
-            if parent.expires_at is not None and checked_at > parent.expires_at:
+            if parent.expires_at is not None and checked_at >= parent.expires_at:
                 return VerificationResult(False, "parent scope expired")
             if not child.allowed_actions <= parent.allowed_actions:
                 return VerificationResult(False, "child allows actions outside parent scope")

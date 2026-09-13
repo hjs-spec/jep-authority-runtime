@@ -15,3 +15,7 @@ python -m pytest -q
 ## Compatibility and remaining limits
 
 Replay delegation/action/path-check records now require at; revocations require at or revoked_at. Missing historical time is reported rather than inferred from the current clock. This remains a reference authority model, not an IAM or identity verifier.
+
+## Follow-up hardening
+
+Resource checks reject dot segments, backslashes, and encoded traversal. Expiry is exclusive at expires_at; actor continuity, repeated revocation, and duplicate scope protections from the original hardening remain in place.
