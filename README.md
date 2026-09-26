@@ -1,5 +1,13 @@
 # jep-authority-runtime
 
+> **JEP Core 0.7 boundary:** this repository is a companion authority/chain
+> runtime. JEP Core records Delegation and Termination statements but does not
+> define authorization validity, delegation-path enforcement, termination
+> cascade, or revocation consequences. The rules below are this runtime's
+> profile/domain semantics, not intrinsic JEP Core semantics.
+>
+> Canonical Core: https://github.com/hjs-spec/jep-core
+
 Reference runtime for JEP authority scope, delegation boundaries, attenuation, revocation, and replay verification.
 
 This project is intentionally **not** real IAM and does not replace OAuth, X.509, DID, or any production authorization protocol. It is a small JEP-compatible reference runtime for making delegation semantics replayable and verifiable.
