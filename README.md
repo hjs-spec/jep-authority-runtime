@@ -1,5 +1,14 @@
 # jep-authority-runtime
 
+> **Maintenance: retired experiment — 2026-09-26.** Active feature development
+> has ended. Source history, releases, examples and existing archive readers are
+> retained for reproduction. Package names and historical formats are unchanged.
+
+The declared scope, attenuation and revocation model remains available here. Production authorization belongs to the application's independently configured policy system; Core statements do not replace it.
+
+For new signed Core integrations, use the [maintained recording and report path](https://github.com/hjs-spec/jep-agent-sdk/blob/main/docs/INTEGRATIONS.md).
+See the [repository directory](https://github.com/hjs-spec/.github/blob/main/PROJECTS.md#retired-experiments) for maintenance status. No automatic archive migration is provided.
+
 > **JEP Core 0.7 boundary:** this repository is a companion authority/chain
 > runtime. JEP Core records Delegation and Termination statements but does not
 > define authorization validity, delegation-path enforcement, termination
