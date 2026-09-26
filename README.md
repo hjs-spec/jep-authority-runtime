@@ -10,7 +10,7 @@
 
 Reference runtime for JEP authority scope, delegation boundaries, attenuation, revocation, and replay verification.
 
-This project is intentionally **not** real IAM and does not replace OAuth, X.509, DID, or any production authorization protocol. It is a small JEP-compatible reference runtime for making delegation semantics replayable and verifiable.
+This project is intentionally **not** real IAM and does not replace OAuth, X.509, DID, or any production authorization protocol. It models a local delegation policy. Its archive is not a signed Core event stream, and replay does not authenticate the authority of its declared root grants.
 
 ## AuthorityScope
 
